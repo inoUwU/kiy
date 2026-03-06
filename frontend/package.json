@@ -13,10 +13,14 @@
     "lint:fix": "oxlint --fix"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.41",
+    "@ai-sdk/react": "^3.0.118",
+    "ai": "^6.0.116",
     "oxfmt": "^0.36.0",
     "oxlint": "^1.51.0",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/react": "^19.2.14",
