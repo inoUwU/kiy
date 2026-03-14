@@ -1,4 +1,5 @@
 import { useState } from "react";
+// @ts-ignore
 import logo from "./assets/images/logo-universal.png";
 import "./App.css";
 import { Greet } from "../wailsjs/go/main/App";
