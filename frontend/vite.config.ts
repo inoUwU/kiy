@@ -1,54 +1,14 @@
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite-plus";
-
+import tv from "@tailwindcss/vite";
+import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  fmt: {
-    "ignorePatterns": []
-  },
-  lint: {
-    "plugins": null,
-    "categories": {},
-    "rules": {},
-    "settings": {
-      "jsx-a11y": {
-        "polymorphicPropName": null,
-        "components": {},
-        "attributes": {}
-      },
-      "next": {
-        "rootDir": []
-      },
-      "react": {
-        "formComponents": [],
-        "linkComponents": [],
-        "version": null,
-        "componentWrapperFunctions": []
-      },
-      "jsdoc": {
-        "ignorePrivate": false,
-        "ignoreInternal": false,
-        "ignoreReplacesDocs": true,
-        "overrideReplacesDocs": true,
-        "augmentsExtendsReplacesDocs": false,
-        "implementsReplacesDocs": false,
-        "exemptDestructuredRootsFromChecks": false,
-        "tagNamePreference": {}
-      },
-      "vitest": {
-        "typecheck": false
-      }
+  plugins: [react(), tv()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
     },
-    "env": {
-      "builtin": true
-    },
-    "globals": {},
-    "ignorePatterns": [],
-    "options": {
-      "typeAware": true,
-      "typeCheck": true
-    }
   },
-  plugins: [react()],
 });
