@@ -1,11 +1,9 @@
 import "./App.css";
 
+import { BranchingChatApp } from "@/features/branching-chat/branching-chat-app";
+
 function App() {
-  return (
-    <div id="App">
-      <div>Hi</div>
-    </div>
-  );
+  return <BranchingChatApp />;
 }
 
 export default App;
