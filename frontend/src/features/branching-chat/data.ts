@@ -76,15 +76,10 @@ const trimToSentence = (value: string, maxLength: number) => {
   return `${value.slice(0, maxLength - 1).trimEnd()}…`;
 };
 
-export const getChildNodes = (
-  nodes: BranchChatNodeRecord[],
-  parentId: string | null
-) => nodes.filter((node) => node.parentId === parentId);
+export const getChildNodes = (nodes: BranchChatNodeRecord[], parentId: string | null) =>
+  nodes.filter((node) => node.parentId === parentId);
 
-export const getDepth = (
-  nodesById: Map<string, BranchChatNodeRecord>,
-  nodeId: string
-) => {
+export const getDepth = (nodesById: Map<string, BranchChatNodeRecord>, nodeId: string) => {
   let depth = 0;
   let current = nodesById.get(nodeId);
 
@@ -96,10 +91,7 @@ export const getDepth = (
   return depth;
 };
 
-export const getLineage = (
-  nodesById: Map<string, BranchChatNodeRecord>,
-  nodeId: string
-) => {
+export const getLineage = (nodesById: Map<string, BranchChatNodeRecord>, nodeId: string) => {
   const lineage: BranchChatNodeRecord[] = [];
   let current = nodesById.get(nodeId);
 
@@ -113,7 +105,7 @@ export const getLineage = (
 
 export const buildFlowNodes = (
   nodes: BranchChatNodeRecord[],
-  selectedNodeId: string
+  selectedNodeId: string,
 ): BranchChatFlowNode[] => {
   const nodesById = new Map(nodes.map((node) => [node.id, node]));
 
@@ -140,10 +132,7 @@ export const buildFlowEdges = (nodes: BranchChatNodeRecord[]): Edge[] =>
       type: "animated",
     }));
 
-export const buildMockAssistantReply = (
-  prompt: string,
-  parent: BranchChatNodeRecord
-) => {
+export const buildMockAssistantReply = (prompt: string, parent: BranchChatNodeRecord) => {
   const shortenedPrompt = trimToSentence(prompt, 92);
   return [
     `親ノード「${parent.title}」を起点に、新しい探索枝として整理しました。`,

@@ -1,11 +1,7 @@
 import type { FormEvent } from "react";
 import type { NodeProps as FlowNodeProps } from "@xyflow/react";
 
-import {
-  Controls,
-  MiniMap,
-  type NodeMouseHandler,
-} from "@xyflow/react";
+import { Controls, MiniMap, type NodeMouseHandler } from "@xyflow/react";
 import {
   Conversation,
   ConversationContent,
@@ -31,29 +27,11 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import {
-  GitBranchIcon,
-  MonitorIcon,
-  MoonIcon,
-  MoveRightIcon,
-  PaletteIcon,
-  SendIcon,
-  SparklesIcon,
-  SunIcon,
-} from "lucide-react";
+import { GitBranchIcon, MoveRightIcon, SendIcon, SparklesIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -64,7 +42,8 @@ import {
   getLineage,
   initialBranchChatNodes,
 } from "./data";
-import type { BranchChatFlowNode  } from "./types";
+import type { BranchChatFlowNode } from "./types";
+import ToggleThemeButton from "@/components/toggle-theme-button";
 
 const ConversationFlowNode = ({ data }: FlowNodeProps<BranchChatFlowNode>) => {
   const { childCount, depth, isSelected, record } = data;
@@ -73,7 +52,7 @@ const ConversationFlowNode = ({ data }: FlowNodeProps<BranchChatFlowNode>) => {
     <BranchNodeCard
       className={cn(
         "w-82.5 border border-border/70 bg-card/95 shadow-lg shadow-foreground/5 backdrop-blur-sm transition-all",
-        isSelected && "ring-2 ring-primary/70 ring-offset-2 ring-offset-background"
+        isSelected && "ring-2 ring-primary/70 ring-offset-2 ring-offset-background",
       )}
       handles={{ source: true, target: record.parentId !== null }}
     >
@@ -103,7 +82,9 @@ const ConversationFlowNode = ({ data }: FlowNodeProps<BranchChatFlowNode>) => {
         </div>
       </NodeContent>
       <NodeFooter className="flex items-center justify-between gap-3 bg-muted/40 text-xs text-muted-foreground">
-        <span>{childCount} branch{childCount === 1 ? "" : "es"}</span>
+        <span>
+          {childCount} branch{childCount === 1 ? "" : "es"}
+        </span>
         <span>{record.parentId ? "Selected branch root available" : "Conversation seed"}</span>
       </NodeFooter>
     </BranchNodeCard>
@@ -123,73 +104,33 @@ const createNodeId = () =>
     ? crypto.randomUUID()
     : `branch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-type ThemeMode = "system" | "light" | "dark";
-
-const THEME_MODE_STORAGE_KEY = "theme-mode";
-
-const getInitialThemeMode = (): ThemeMode => {
-  if (typeof window === "undefined") {
-    return "system";
-  }
-
-  const stored = window.localStorage.getItem(THEME_MODE_STORAGE_KEY);
-  return stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
-};
-
 export const BranchingChatApp = () => {
   const [conversationNodes, setConversationNodes] = useState(initialBranchChatNodes);
   const [selectedNodeId, setSelectedNodeId] = useState(initialBranchChatNodes.at(-1)?.id ?? "");
   const [prompt, setPrompt] = useState("");
-  const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialThemeMode);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-
-    const applyTheme = () => {
-      const resolvedMode = themeMode === "system" ? (media.matches ? "dark" : "light") : themeMode;
-      root.classList.toggle("dark", resolvedMode === "dark");
-      root.style.colorScheme = resolvedMode;
-    };
-
-    applyTheme();
-    window.localStorage.setItem(THEME_MODE_STORAGE_KEY, themeMode);
-
-    const handleMediaChange = () => {
-      if (themeMode === "system") {
-        applyTheme();
-      }
-    };
-
-    media.addEventListener("change", handleMediaChange);
-
-    return () => {
-      media.removeEventListener("change", handleMediaChange);
-    };
-  }, [themeMode]);
 
   const nodesById = useMemo(
     () => new Map(conversationNodes.map((node) => [node.id, node])),
-    [conversationNodes]
+    [conversationNodes],
   );
 
   const selectedNode = nodesById.get(selectedNodeId) ?? conversationNodes[0];
   const flowNodes = useMemo(
     () => buildFlowNodes(conversationNodes, selectedNode.id),
-    [conversationNodes, selectedNode.id]
+    [conversationNodes, selectedNode.id],
   );
   const flowEdges = useMemo(() => buildFlowEdges(conversationNodes), [conversationNodes]);
   const lineage = useMemo(
     () => getLineage(nodesById, selectedNode.id),
-    [nodesById, selectedNode.id]
+    [nodesById, selectedNode.id],
   );
   const children = useMemo(
     () => getChildNodes(conversationNodes, selectedNode.id),
-    [conversationNodes, selectedNode.id]
+    [conversationNodes, selectedNode.id],
   );
   const siblingBranches = useMemo(
     () => getChildNodes(conversationNodes, selectedNode.parentId),
-    [conversationNodes, selectedNode.parentId]
+    [conversationNodes, selectedNode.parentId],
   );
   const selectedSiblingIndex = siblingBranches.findIndex((node) => node.id === selectedNode.id);
 
@@ -198,7 +139,8 @@ export const BranchingChatApp = () => {
       return;
     }
 
-    const nextIndex = (selectedSiblingIndex + offset + siblingBranches.length) % siblingBranches.length;
+    const nextIndex =
+      (selectedSiblingIndex + offset + siblingBranches.length) % siblingBranches.length;
     setSelectedNodeId(siblingBranches[nextIndex].id);
   };
 
@@ -228,14 +170,8 @@ export const BranchingChatApp = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-    
       <div className="mx-auto flex min-h-screen max-w-425 flex-col gap-6 px-4 py-4 md:px-6 lg:px-8">
-
         {/* TODO:サイドバーにプロジェクトを切り替えるUIを追加する。プロジェクトごとに会話の木構造を切り替えられるようにする。 */}
-        
-        
-
-
 
         {/* <header className="grid gap-4 rounded-[28px] border border-white/10 bg-white/6 p-5 text-left shadow-2xl shadow-black/20 backdrop-blur md:grid-cols-[minmax(0,1fr)_320px] md:items-end">
           <div className="space-y-3">
@@ -304,7 +240,9 @@ export const BranchingChatApp = () => {
                   </Button>
                 </div>
                 <span className="text-muted-foreground text-xs">
-                  {selectedSiblingIndex >= 0 ? `${selectedSiblingIndex + 1} / ${siblingBranches.length}` : "Root"}
+                  {selectedSiblingIndex >= 0
+                    ? `${selectedSiblingIndex + 1} / ${siblingBranches.length}`
+                    : "Root"}
                 </span>
               </MessageToolbar>
             </div>
@@ -321,7 +259,8 @@ export const BranchingChatApp = () => {
                       <Button
                         className={cn(
                           "max-w-45 rounded-full border-border bg-muted/40 text-muted-foreground hover:bg-muted",
-                          node.id === selectedNode.id && "bg-primary text-primary-foreground hover:bg-primary/90"
+                          node.id === selectedNode.id &&
+                            "bg-primary text-primary-foreground hover:bg-primary/90",
                         )}
                         onClick={() => setSelectedNodeId(node.id)}
                         size="sm"
@@ -330,7 +269,9 @@ export const BranchingChatApp = () => {
                       >
                         <span className="truncate">{node.branchLabel}</span>
                       </Button>
-                      {index < lineage.length - 1 && <MoveRightIcon className="text-muted-foreground size-3" />}
+                      {index < lineage.length - 1 && (
+                        <MoveRightIcon className="text-muted-foreground size-3" />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -364,14 +305,20 @@ export const BranchingChatApp = () => {
                       </Message>
                     </>
                   ) : (
-                    <ConversationEmptyState description="ノードを選択すると内容を表示します。" title="No conversation selected" />
+                    <ConversationEmptyState
+                      description="ノードを選択すると内容を表示します。"
+                      title="No conversation selected"
+                    />
                   )}
                 </ConversationContent>
                 <ConversationScrollButton />
               </Conversation>
             </div>
 
-            <form className="rounded-[24px] border border-border/70 bg-card p-4" onSubmit={handleSubmit}>
+            <form
+              className="rounded-[24px] border border-border/70 bg-card p-4"
+              onSubmit={handleSubmit}
+            >
               <div className="flex items-center justify-between gap-3">
                 <div className="text-muted-foreground flex items-center gap-2 text-sm">
                   <SparklesIcon className="size-4" />
@@ -422,43 +369,8 @@ export const BranchingChatApp = () => {
               <Controls className="bottom-5! right-5! border-none! bg-card/90! shadow-lg! [&>button]:border-border! [&>button]:bg-transparent! [&>button]:text-foreground!" />
             </Canvas>
           </section>
-
         </div>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              aria-label="テーマ切り替え"
-              className="fixed bottom-4 right-4 z-50 shadow-lg md:bottom-6 md:right-6"
-              size="icon"
-              type="button"
-              variant="outline"
-            >
-              <PaletteIcon className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuLabel>Theme</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup
-              onValueChange={(value) => setThemeMode(value as ThemeMode)}
-              value={themeMode}
-            >
-              <DropdownMenuRadioItem value="system">
-                <MonitorIcon className="size-4" />
-                System
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="light">
-                <SunIcon className="size-4" />
-                Light
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="dark">
-                <MoonIcon className="size-4" />
-                Dark
-              </DropdownMenuRadioItem>
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <ToggleThemeButton />
       </div>
     </div>
   );
