@@ -17,3 +17,43 @@ to this in your browser, and you can call your Go code from devtools.
 ## Building
 
 To build a redistributable, production mode package, use `wails build`.
+
+## PostgreSQL (Docker)
+
+`data.dbml` に対応したテーブルを、Docker起動時に自動で初期化できます。
+
+### Start
+
+```bash
+docker compose -f infra/compose.yml up -d --build
+```
+
+### Stop
+
+```bash
+docker compose -f infra/compose.yml down
+```
+
+### Reinitialize
+
+初期化SQLは初回起動時のみ実行されます。再初期化する場合はボリュームも削除してください。
+
+```bash
+docker compose -f infra/compose.yml down -v
+docker compose -f infra/compose.yml up -d --build
+```
+
+### Connection
+
+- Host: `localhost`
+- Port: `5432`
+- Database: `chat_graph`
+- User: `app`
+- Password: `app`
+
+### Verify Schema
+
+```bash
+docker compose -f infra/compose.yml exec db psql -U app -d chat_graph -c "\\dt"
+docker compose -f infra/compose.yml exec db psql -U app -d chat_graph -c "\\di"
+```

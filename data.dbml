@@ -1,0 +1,48 @@
+Project chat_graph {
+  database_type: 'PostgreSQL'
+  Note: 'Branching chat system using nodes and edges'
+}
+
+Table conversations {
+  id varchar [pk]
+  title varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table nodes {
+  id varchar [pk]
+  conversation_id varchar [not null]
+  role varchar
+  content text
+  metadata jsonb
+  created_at timestamp
+}
+
+Table edges {
+  id varchar [pk]
+  conversation_id varchar
+  source_id varchar
+  target_id varchar
+
+  indexes {
+    (source_id)
+    (target_id)
+  }
+}
+
+
+Table active_paths {
+  conversation_id varchar
+  node_id varchar
+  order_index int
+}
+
+Ref: nodes.conversation_id > conversations.id
+Ref: edges.conversation_id > conversations.id
+
+Ref: edges.source_id > nodes.id
+Ref: edges.target_id > nodes.id
+
+Ref: active_paths.conversation_id > conversations.id
+Ref: active_paths.node_id > nodes.id
